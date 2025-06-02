@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "cpf_model.h": "c",
+        "menu_view.h": "c",
+        "types.h": "c",
+        "div_view.h": "c",
+        "paciente_model.h": "c",
+        "string.h": "c",
+        "stdlib.h": "c",
+        "page_view.h": "c"
+    }
+}
