@@ -65,6 +65,20 @@ Bool create_empty_file(char* filename) {
     return True;
 }
 
+Bool str_comp_prefix(char* str, char* str_prefix) {
+    int i;
+    if(strlen(str_prefix) > strlen(str))
+        return False;
+
+    for(i = 0; i < strlen(str_prefix); i++)
+        if(str_prefix[i] != str[i])
+            return False;
+
+    return True;
+}
+
+
+
 // Conecta ao "banco de dados" (abre arquivo, conta registros e calcula número de páginas)
 BDPaciente* db_connect(char* filename){
     Bool r;
@@ -212,5 +226,119 @@ Records* list_records(BDPaciente* connection, uint page) {
 
     return array;
 }
+
+
+Records* list_records_by_nome(BDPaciente* connection, char* nome) {
+    Records* array = (Records*) malloc((connection->n_records + 1) * sizeof(Records));
+    if(array == NULL)
+        return NULL;
+
+    FILE* db_file;
+    uint i, j, k;
+
+    char buffer_id[BUFFER_SIZE];
+    char buffer_cpf[BUFFER_SIZE];
+    char buffer_nome[BUFFER_SIZE];
+    char buffer_idade[BUFFER_SIZE];
+    char buffer_data_cadastro[BUFFER_SIZE];
+
+    db_file = fopen(connection->_filename, "r");
+    if(db_file == NULL)
+        return NULL;
+
+    if (fscanf(db_file, "%[^,],%[^,],%[^,],%[^,],%[^,\n]%*c", buffer_id, buffer_cpf, buffer_nome, buffer_idade, buffer_data_cadastro) != 5) {
+        fclose(db_file);
+        return NULL;
+    }
+
+    j = 0;
+    for(i = 0; i < connection->n_records; i++) {
+        if(fscanf(db_file, "%[^,],%[^,],%[^,],%[^,],%[^,\n]%*c", buffer_id, buffer_cpf, buffer_nome, buffer_idade, buffer_data_cadastro) != 5)
+            break;
+        
+        if(str_comp_prefix(buffer_nome, nome)){
+            array[j].id = (uint) atoi(buffer_id);
+            array[j].paciente = paciente_init(buffer_nome, buffer_cpf, buffer_idade);
+
+            if(array[j].paciente == NULL) {
+                for(k = 0; k < j; k++)
+                    paciente_free(array[k].paciente);
+                free(array);
+                return NULL;
+            }
+
+            strcpy(array[j].data_cadastro, buffer_data_cadastro);
+            array[j].end_of_record = False;
+            j++;
+        }
+    }
+
+    fclose(db_file);
+
+    // Marca o fim do array com um registro especial
+    array[j].id = 0;
+    array[j].paciente = NULL;
+    array[j].end_of_record = True;
+
+    return array;
+}
+
+
+Records* list_records_by_cpf(BDPaciente* connection, char* cpf) {
+    Records* array = (Records*) malloc((connection->n_records + 1) * sizeof(Records));
+    if(array == NULL)
+        return NULL;
+
+    FILE* db_file;
+    uint i, j, k;
+
+    char buffer_id[BUFFER_SIZE];
+    char buffer_cpf[BUFFER_SIZE];
+    char buffer_nome[BUFFER_SIZE];
+    char buffer_idade[BUFFER_SIZE];
+    char buffer_data_cadastro[BUFFER_SIZE];
+
+    db_file = fopen(connection->_filename, "r");
+    if(db_file == NULL)
+        return NULL;
+
+    if (fscanf(db_file, "%[^,],%[^,],%[^,],%[^,],%[^,\n]%*c", buffer_id, buffer_cpf, buffer_nome, buffer_idade, buffer_data_cadastro) != 5) {
+        fclose(db_file);
+        return NULL;
+    }
+
+    j = 0;
+    for(i = 0; i < connection->n_records; i++) {
+        if(fscanf(db_file, "%[^,],%[^,],%[^,],%[^,],%[^,\n]%*c", buffer_id, buffer_cpf, buffer_nome, buffer_idade, buffer_data_cadastro) != 5)
+            break;
+        
+        if(str_comp_prefix(buffer_cpf, cpf)){
+            array[j].id = (uint) atoi(buffer_id);
+            array[j].paciente = paciente_init(buffer_nome, buffer_cpf, buffer_idade);
+
+            if(array[j].paciente == NULL) {
+                for(k = 0; k < j; k++)
+                    paciente_free(array[k].paciente);
+                free(array);
+                return NULL;
+            }
+
+            strcpy(array[j].data_cadastro, buffer_data_cadastro);
+            array[j].end_of_record = False;
+            j++;
+        }
+    }
+
+    fclose(db_file);
+
+    // Marca o fim do array com um registro especial
+    array[j].id = 0;
+    array[j].paciente = NULL;
+    array[j].end_of_record = True;
+
+    return array;
+}
+
+
 
 #endif

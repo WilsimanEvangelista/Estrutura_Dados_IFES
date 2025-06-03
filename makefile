@@ -22,6 +22,7 @@ view_comp: objects
 	gcc -c view/src/div_view.c -o objects/view_div.o
 	gcc -c view/src/open_db_error_view.c -o objects/view_open_db_error.o
 	gcc -c view/src/page_view.c -o objects/view_page.o
+	gcc -c view/src/search_view.c -o objects/view_search.o
 
 # Regra para compilar os arquivos fonte do model em objetos
 model_comp: objects

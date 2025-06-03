@@ -30,5 +30,7 @@ typedef struct records Records;
 BDPaciente* db_connect(char* filename);
 void db_close(BDPaciente* connection);
 Records* list_records(BDPaciente* connection, uint page);
+Records* list_records_by_nome(BDPaciente* connection, char* nome);
+Records* list_records_by_cpf(BDPaciente* connection, char* cpf);
 
 #endif
